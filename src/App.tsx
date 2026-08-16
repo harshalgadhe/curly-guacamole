@@ -27,6 +27,11 @@ export const App: React.FC = () => {
     <BrowserRouter>
       <ScrollToTop />
       <Routes>
+        {/* Admin Portal Routes (Top Priority) */}
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/crud/:entity" element={<AdminCRUD />} />
+
         {/* Public Website Shell */}
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
@@ -44,13 +49,10 @@ export const App: React.FC = () => {
           <Route path="insights" element={<InsightsPage />} />
           <Route path="insights/:slug" element={<InsightDetail />} />
           <Route path="contact" element={<Contact />} />
-          <Route path="*" element={<NotFound />} />
         </Route>
 
-        {/* Admin CMS Authentication & Portal */}
-        <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/admin/crud/:entity" element={<AdminCRUD />} />
+        {/* Catch-all 404 Route */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );
