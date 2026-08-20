@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Phone, Mail, MapPin, ShieldCheck, Lock, ExternalLink } from 'lucide-react';
+import { Phone, Mail, MapPin, ShieldCheck, Lock } from 'lucide-react';
 import { SiteSettings } from '../../types';
 
 interface FooterProps {
@@ -14,8 +14,8 @@ export const Footer: React.FC<FooterProps> = ({ settings }) => {
       <div className="bg-industrial-slate py-8 px-4 border-b border-industrial-steel">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div>
-            <h3 className="text-lg font-bold text-white tracking-tight">Need technical product selection or bulk procurement support?</h3>
-            <p className="text-xs text-gray-400 mt-1">Our sales engineering team provides mill certificates, sample testing, and site delivery quotes.</p>
+            <h3 className="text-lg font-bold text-white tracking-tight">Need technical product selection or project procurement support?</h3>
+            <p className="text-xs text-gray-400 mt-1">Strengthen Engineering for Nation — Bridge Bearings, Expansion Joints & Couplings.</p>
           </div>
           <div className="flex items-center space-x-3 shrink-0">
             <a
@@ -41,10 +41,11 @@ export const Footer: React.FC<FooterProps> = ({ settings }) => {
         {/* Column 1: Company Profile */}
         <div className="lg:col-span-2 space-y-4">
           <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 bg-industrial-orange rounded flex items-center justify-center font-black text-white text-lg">
-              A
+            <img src={settings.logoUrl || '/logo.jpg'} alt="Logo" className="h-12 w-auto bg-black p-0.5 rounded border border-industrial-steel" />
+            <div>
+              <div className="text-base font-black tracking-tight text-white">{settings.companyName}</div>
+              <div className="text-[10px] text-industrial-orange font-bold uppercase">{settings.tagline}</div>
             </div>
-            <span className="text-lg font-black tracking-tight text-white">APEX INDUSTRIAL</span>
           </div>
           <p className="text-xs text-gray-400 leading-relaxed max-w-sm">
             {settings.footerDescription}
@@ -67,39 +68,36 @@ export const Footer: React.FC<FooterProps> = ({ settings }) => {
 
         {/* Column 2: Products & Catalog */}
         <div>
-          <h4 className="text-xs font-bold uppercase tracking-wider text-industrial-orange mb-4">Product Families</h4>
+          <h4 className="text-xs font-bold uppercase tracking-wider text-industrial-orange mb-4">Products</h4>
           <ul className="space-y-2.5 text-xs text-gray-400">
-            <li><Link to="/products?category=fasteners-bolting-systems" className="hover:text-white transition-colors">Fasteners & Bolting</Link></li>
-            <li><Link to="/products?category=power-tools-machinery" className="hover:text-white transition-colors">Power Tools & Machinery</Link></li>
-            <li><Link to="/products?category=structural-anchors-fixing" className="hover:text-white transition-colors">Structural Anchors & Resin</Link></li>
-            <li><Link to="/products?category=precision-hand-tools" className="hover:text-white transition-colors">Precision Hand Tools</Link></li>
-            <li><Link to="/products?category=safety-equipment-ppe" className="hover:text-white transition-colors">Safety Equipment & PPE</Link></li>
-            <li><Link to="/products?category=cutting-grinding-abrasives" className="hover:text-white transition-colors">Cutting & Abrasive Wheels</Link></li>
-            <li><Link to="/products" className="text-industrial-orange hover:underline font-semibold mt-1 inline-block">View Full Catalog →</Link></li>
+            <li><Link to="/products?category=bridge-bearings" className="hover:text-white transition-colors">Bridge Bearings</Link></li>
+            <li><Link to="/products?category=expansion-joints" className="hover:text-white transition-colors">Expansion Joints</Link></li>
+            <li><Link to="/products?category=industrial-couplings" className="hover:text-white transition-colors">Industrial Couplings</Link></li>
+            <li><Link to="/products?category=fasteners-bolting" className="hover:text-white transition-colors">Fasteners & Bolting</Link></li>
+            <li><Link to="/products?category=anchors-fixing" className="hover:text-white transition-colors">Anchors & Fixing</Link></li>
+            <li><Link to="/products" className="text-industrial-orange hover:underline font-semibold mt-1 inline-block">Full Product Catalog →</Link></li>
           </ul>
         </div>
 
         {/* Column 3: Corporate & Sectors */}
         <div>
-          <h4 className="text-xs font-bold uppercase tracking-wider text-industrial-orange mb-4">Corporate & Sectors</h4>
+          <h4 className="text-xs font-bold uppercase tracking-wider text-industrial-orange mb-4">Corporate</h4>
           <ul className="space-y-2.5 text-xs text-gray-400">
-            <li><Link to="/about" className="hover:text-white transition-colors">About Apex Industrial</Link></li>
+            <li><Link to="/about" className="hover:text-white transition-colors">About Us</Link></li>
             <li><Link to="/industries" className="hover:text-white transition-colors">Industries Served</Link></li>
-            <li><Link to="/capabilities" className="hover:text-white transition-colors">Bulk Procurement Services</Link></li>
-            <li><Link to="/infrastructure" className="hover:text-white transition-colors">Warehouse & Facilities</Link></li>
-            <li><Link to="/quality" className="hover:text-white transition-colors">Quality Assurance Policy</Link></li>
-            <li><Link to="/projects" className="hover:text-white transition-colors">Case Studies & Projects</Link></li>
+            <li><Link to="/capabilities" className="hover:text-white transition-colors">Services & Capabilities</Link></li>
+            <li><Link to="/infrastructure" className="hover:text-white transition-colors">Infrastructure</Link></li>
+            <li><Link to="/projects" className="hover:text-white transition-colors">Projects & Case Studies</Link></li>
           </ul>
         </div>
 
         {/* Column 4: Resources & Compliance */}
         <div>
-          <h4 className="text-xs font-bold uppercase tracking-wider text-industrial-orange mb-4">Resources & Approvals</h4>
+          <h4 className="text-xs font-bold uppercase tracking-wider text-industrial-orange mb-4">Resources</h4>
           <ul className="space-y-2.5 text-xs text-gray-400">
             <li><Link to="/resources/documents" className="hover:text-white transition-colors">Document Center</Link></li>
-            <li><Link to="/resources/documents" className="hover:text-white transition-colors">ISO 9001:2015 Certifications</Link></li>
-            <li><Link to="/gallery" className="hover:text-white transition-colors">Warehouse Media Gallery</Link></li>
-            <li><Link to="/insights" className="hover:text-white transition-colors">Technical Insights Blog</Link></li>
+            <li><Link to="/gallery" className="hover:text-white transition-colors">Media Gallery</Link></li>
+            <li><Link to="/insights" className="hover:text-white transition-colors">Technical Insights</Link></li>
             <li><Link to="/contact" className="hover:text-white transition-colors">Contact Sales Engineering</Link></li>
           </ul>
           <div className="mt-6 pt-4 border-t border-industrial-slate">
@@ -120,7 +118,7 @@ export const Footer: React.FC<FooterProps> = ({ settings }) => {
           <div>{settings.copyrightText}</div>
           <div className="flex items-center space-x-6">
             <span className="inline-flex items-center text-[11px] text-gray-400">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 mr-1" /> Verified B2B Hardware Supplier
+              <ShieldCheck className="w-3.5 h-3.5 text-industrial-orange mr-1" /> Strengthen Engineering for Nation
             </span>
           </div>
         </div>

@@ -47,7 +47,6 @@ export const Products: React.FC = () => {
   // Filtering Logic
   let filtered = products.filter((p) => {
     if (selectedCategory && p.categoryId !== selectedCategory && p.slug !== selectedCategory) {
-      // match category slug or categoryId
       const catObj = categories.find(c => c.slug === selectedCategory || c.id === selectedCategory);
       if (catObj && p.categoryId !== catObj.id) return false;
     }
@@ -71,7 +70,6 @@ export const Products: React.FC = () => {
   } else if (sortBy === 'newest') {
     filtered.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
   } else {
-    // Featured first
     filtered.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
   }
 
@@ -98,7 +96,7 @@ export const Products: React.FC = () => {
             Industrial Hardware & Product Catalog
           </h1>
           <p className="text-sm text-industrial-muted max-w-3xl">
-            Browse our comprehensive inventory of engineering-grade fasteners, structural anchors, industrial power tools, cutting abrasives, and safety equipment.
+            Browse our comprehensive inventory of bridge bearings, expansion joints, couplings, fasteners, structural anchors, and safety equipment.
           </p>
         </div>
 
@@ -110,7 +108,7 @@ export const Products: React.FC = () => {
             <Search className="w-4 h-4 absolute left-3 top-3 text-industrial-muted" />
             <input
               type="text"
-              placeholder="Search products by name, SKU, or specification..."
+              placeholder="Search products by name, category, or specification..."
               value={searchQuery}
               onChange={(e) => updateParam('q', e.target.value)}
               className="w-full pl-9 pr-4 py-2 bg-white border border-industrial-border rounded text-sm text-industrial-dark focus:outline-none focus:border-industrial-orange"
@@ -156,7 +154,7 @@ export const Products: React.FC = () => {
           </div>
         </div>
 
-        {/* Main Content Layout (Left Filters Sidebar + Right Product Grid) */}
+        {/* Main Content Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           
           {/* Left Sidebar Filter Panel */}
@@ -267,7 +265,14 @@ export const Products: React.FC = () => {
                     className="bg-white rounded-lg border border-industrial-border overflow-hidden hover:border-industrial-orange transition-all hover:shadow-industrial flex flex-col justify-between"
                   >
                     <div className="p-4 bg-gray-50 border-b border-industrial-border relative h-48 flex items-center justify-center">
-                      <img src={prod.featuredImage} alt={prod.name} className="max-h-full max-w-full object-contain" />
+                      <img
+                        src={prod.featuredImage}
+                        alt={prod.name}
+                        className="max-h-full max-w-full object-contain"
+                        onError={(e) => {
+                          e.currentTarget.src = 'https://placehold.co/600x400/111315/ffffff?text=Product';
+                        }}
+                      />
                       {prod.brandName && (
                         <span className="absolute top-3 left-3 bg-industrial-dark text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">
                           {prod.brandName}
@@ -316,7 +321,14 @@ export const Products: React.FC = () => {
                     className="bg-white rounded-lg border border-industrial-border p-4 hover:border-industrial-orange transition-all flex flex-col sm:flex-row items-center gap-6"
                   >
                     <div className="w-full sm:w-36 h-36 bg-gray-50 rounded border border-industrial-border p-2 shrink-0 flex items-center justify-center">
-                      <img src={prod.featuredImage} alt={prod.name} className="max-h-full max-w-full object-contain" />
+                      <img
+                        src={prod.featuredImage}
+                        alt={prod.name}
+                        className="max-h-full max-w-full object-contain"
+                        onError={(e) => {
+                          e.currentTarget.src = 'https://placehold.co/600x400/111315/ffffff?text=Product';
+                        }}
+                      />
                     </div>
 
                     <div className="flex-1 min-w-0">

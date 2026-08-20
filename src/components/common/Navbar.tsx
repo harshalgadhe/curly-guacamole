@@ -46,7 +46,7 @@ export const Navbar: React.FC<NavbarProps> = ({ settings, onOpenSearch }) => {
 
   return (
     <header className="w-full z-40 sticky top-0 transition-all duration-300">
-      {/* Top Bar - Contact Info */}
+      {/* Top Bar */}
       <div className="bg-industrial-dark text-white text-xs py-2 px-4 border-b border-industrial-slate hidden md:block">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-6">
@@ -65,7 +65,7 @@ export const Navbar: React.FC<NavbarProps> = ({ settings, onOpenSearch }) => {
           <div className="flex items-center space-x-4">
             <span className="inline-flex items-center text-xs font-semibold text-gray-300">
               <ShieldCheck className="w-3.5 h-3.5 mr-1 text-industrial-orange" />
-              B2B Industrial Hardware Supplier
+              Strengthen Engineering for Nation
             </span>
             <Link to="/resources/documents" className="text-gray-300 hover:text-white transition-colors">
               Document Center
@@ -75,20 +75,22 @@ export const Navbar: React.FC<NavbarProps> = ({ settings, onOpenSearch }) => {
       </div>
 
       {/* Main Navbar */}
-      <div className={`transition-all duration-200 ${isScrolled ? 'glass-header shadow-subtle py-3 border-b border-industrial-border' : 'bg-white py-4 border-b border-industrial-border'}`}>
+      <div className={`transition-all duration-200 ${isScrolled ? 'glass-header shadow-subtle py-3 border-b border-industrial-border' : 'bg-white py-3 border-b border-industrial-border'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3 group">
-            <div className="w-10 h-10 bg-industrial-dark rounded-md flex items-center justify-center font-black text-industrial-orange text-xl tracking-tighter shadow-sm group-hover:bg-industrial-slate transition-colors">
-              A
-            </div>
+            <img
+              src={settings.logoUrl || '/logo.jpg'}
+              alt={settings.companyName}
+              className="h-11 w-auto object-contain rounded border border-industrial-border bg-black p-0.5"
+            />
             <div>
-              <div className="text-lg font-black text-industrial-dark tracking-tight leading-none group-hover:text-industrial-orange transition-colors">
-                APEX HARDWARE
+              <div className="text-base font-black text-industrial-dark tracking-tight leading-none group-hover:text-industrial-orange transition-colors">
+                INFINITE HARDWARE
               </div>
-              <div className="text-[10px] font-bold uppercase text-industrial-muted tracking-wider leading-tight mt-0.5">
-                Industrial Supplies
+              <div className="text-[9px] font-bold uppercase text-industrial-muted tracking-wider leading-tight mt-0.5">
+                Technology (P) Ltd.
               </div>
             </div>
           </Link>
@@ -144,13 +146,6 @@ export const Navbar: React.FC<NavbarProps> = ({ settings, onOpenSearch }) => {
                     >
                       <FileText className="w-4 h-4 mr-2.5 text-industrial-orange" />
                       Document Center
-                    </Link>
-                    <Link
-                      to="/resources/documents"
-                      className="flex items-center px-4 py-2 text-sm text-industrial-dark hover:bg-industrial-light hover:text-industrial-orange transition-colors"
-                    >
-                      <Award className="w-4 h-4 mr-2.5 text-industrial-orange" />
-                      Certifications
                     </Link>
                     <Link
                       to="/gallery"
@@ -219,7 +214,10 @@ export const Navbar: React.FC<NavbarProps> = ({ settings, onOpenSearch }) => {
           <div className="w-4/5 max-w-sm bg-white h-full shadow-2xl p-6 overflow-y-auto flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between border-b border-industrial-border pb-4 mb-6">
-                <div className="font-black text-industrial-dark text-lg">APEX HARDWARE</div>
+                <div className="flex items-center space-x-2">
+                  <img src={settings.logoUrl || '/logo.jpg'} alt="Logo" className="h-8 w-auto bg-black p-0.5 rounded" />
+                  <div className="font-black text-industrial-dark text-sm">INFINITE HARDWARE</div>
+                </div>
                 <button onClick={() => setMobileMenuOpen(false)} className="p-1.5 text-industrial-muted hover:text-industrial-dark">
                   <X className="w-6 h-6" />
                 </button>
