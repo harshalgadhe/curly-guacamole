@@ -5,9 +5,7 @@ import {
   Briefcase,
   FileText,
   Mail,
-  CheckCircle,
 } from 'lucide-react';
-import { AdminLayout } from '../components/common/AdminLayout';
 import { getProducts } from '../services/products.service';
 import { getProjects } from '../services/projects.service';
 import { getDocuments } from '../services/documents.service';
@@ -57,94 +55,92 @@ export const AdminDashboard: React.FC = () => {
   const newEnquiriesCount = enquiries.filter((e) => e.status === 'New').length;
 
   return (
-    <AdminLayout>
-      <div className="space-y-6">
-        {/* Title */}
-        <div>
-          <h1 className="text-2xl font-black text-industrial-dark tracking-tight">
-            {activeTab === 'enquiries' ? 'Customer Enquiries' : 'Dashboard Overview'}
-          </h1>
-          <p className="text-xs text-industrial-muted mt-1">
-            {activeTab === 'enquiries'
-              ? 'Manage and follow up on customer quote requests'
-              : 'Real-time overview of your website content and customer interest'}
-          </p>
-        </div>
-
-        {activeTab === 'dashboard' && (
-          <>
-            {/* Metric Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-white p-5 rounded-lg border border-industrial-border shadow-subtle">
-                <div className="flex items-center justify-between">
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-industrial-muted">Products & Items</div>
-                  <Package className="w-5 h-5 text-industrial-orange" />
-                </div>
-                <div className="text-3xl font-black text-industrial-dark mt-2">{products.length}</div>
-                <div className="text-[10px] text-industrial-muted mt-1">
-                  {products.filter((p) => p.published).length} visible on site
-                </div>
-              </div>
-
-              <div className="bg-white p-5 rounded-lg border border-industrial-border shadow-subtle">
-                <div className="flex items-center justify-between">
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-industrial-muted">Case Studies / Projects</div>
-                  <Briefcase className="w-5 h-5 text-industrial-orange" />
-                </div>
-                <div className="text-3xl font-black text-industrial-dark mt-2">{projects.length}</div>
-                <div className="text-[10px] text-industrial-muted mt-1">
-                  {projects.filter((p) => p.published).length} visible on site
-                </div>
-              </div>
-
-              <div className="bg-white p-5 rounded-lg border border-industrial-border shadow-subtle">
-                <div className="flex items-center justify-between">
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-industrial-muted">Documents Library</div>
-                  <FileText className="w-5 h-5 text-industrial-orange" />
-                </div>
-                <div className="text-3xl font-black text-industrial-dark mt-2">{documents.length}</div>
-                <div className="text-[10px] text-industrial-muted mt-1">
-                  {documents.filter((d) => d.published).length} technical PDFs
-                </div>
-              </div>
-
-              <div className="bg-white p-5 rounded-lg border border-industrial-border shadow-subtle">
-                <div className="flex items-center justify-between">
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-industrial-muted">Enquiries Received</div>
-                  <Mail className="w-5 h-5 text-industrial-orange" />
-                </div>
-                <div className="text-3xl font-black text-industrial-dark mt-2">{enquiries.length}</div>
-                {newEnquiriesCount > 0 ? (
-                  <div className="text-[10px] text-red-600 font-bold mt-1">
-                    {newEnquiriesCount} new requests need response
-                  </div>
-                ) : (
-                  <div className="text-[10px] text-emerald-600 font-bold mt-1">
-                    All enquiries addressed
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Quick Enquiries Panel */}
-            <div className="bg-white rounded-lg border border-industrial-border shadow-subtle p-6 mt-6">
-              <div className="flex items-center justify-between border-b border-industrial-border pb-4 mb-4">
-                <h2 className="text-base font-bold text-industrial-dark flex items-center">
-                  <Mail className="w-4 h-4 mr-2 text-industrial-orange" /> Latest Customer Requests
-                </h2>
-              </div>
-              <EnquiriesTable enquiries={enquiries.slice(0, 5)} onStatusChange={handleStatusChange} />
-            </div>
-          </>
-        )}
-
-        {activeTab === 'enquiries' && (
-          <div className="bg-white rounded-lg border border-industrial-border shadow-subtle p-6">
-            <EnquiriesTable enquiries={enquiries} onStatusChange={handleStatusChange} />
-          </div>
-        )}
+    <div className="space-y-6">
+      {/* Title */}
+      <div>
+        <h1 className="text-2xl font-black text-industrial-dark tracking-tight">
+          {activeTab === 'enquiries' ? 'Customer Enquiries' : 'Dashboard Overview'}
+        </h1>
+        <p className="text-xs text-industrial-muted mt-1">
+          {activeTab === 'enquiries'
+            ? 'Manage and follow up on customer quote requests'
+            : 'Real-time overview of your website content and customer interest'}
+        </p>
       </div>
-    </AdminLayout>
+
+      {activeTab === 'dashboard' && (
+        <>
+          {/* Metric Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-white p-5 rounded-lg border border-industrial-border shadow-subtle">
+              <div className="flex items-center justify-between">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-industrial-muted">Products & Items</div>
+                <Package className="w-5 h-5 text-industrial-orange" />
+              </div>
+              <div className="text-3xl font-black text-industrial-dark mt-2">{products.length}</div>
+              <div className="text-[10px] text-industrial-muted mt-1">
+                {products.filter((p) => p.published).length} visible on site
+              </div>
+            </div>
+
+            <div className="bg-white p-5 rounded-lg border border-industrial-border shadow-subtle">
+              <div className="flex items-center justify-between">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-industrial-muted">Case Studies / Projects</div>
+                <Briefcase className="w-5 h-5 text-industrial-orange" />
+              </div>
+              <div className="text-3xl font-black text-industrial-dark mt-2">{projects.length}</div>
+              <div className="text-[10px] text-industrial-muted mt-1">
+                {projects.filter((p) => p.published).length} visible on site
+              </div>
+            </div>
+
+            <div className="bg-white p-5 rounded-lg border border-industrial-border shadow-subtle">
+              <div className="flex items-center justify-between">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-industrial-muted">Documents Library</div>
+                <FileText className="w-5 h-5 text-industrial-orange" />
+              </div>
+              <div className="text-3xl font-black text-industrial-dark mt-2">{documents.length}</div>
+              <div className="text-[10px] text-industrial-muted mt-1">
+                {documents.filter((d) => d.published).length} technical PDFs
+              </div>
+            </div>
+
+            <div className="bg-white p-5 rounded-lg border border-industrial-border shadow-subtle">
+              <div className="flex items-center justify-between">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-industrial-muted">Enquiries Received</div>
+                <Mail className="w-5 h-5 text-industrial-orange" />
+              </div>
+              <div className="text-3xl font-black text-industrial-dark mt-2">{enquiries.length}</div>
+              {newEnquiriesCount > 0 ? (
+                <div className="text-[10px] text-red-600 font-bold mt-1">
+                  {newEnquiriesCount} new requests need response
+                </div>
+              ) : (
+                <div className="text-[10px] text-emerald-600 font-bold mt-1">
+                  All enquiries addressed
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Quick Enquiries Panel */}
+          <div className="bg-white rounded-lg border border-industrial-border shadow-subtle p-6 mt-6">
+            <div className="flex items-center justify-between border-b border-industrial-border pb-4 mb-4">
+              <h2 className="text-base font-bold text-industrial-dark flex items-center">
+                <Mail className="w-4 h-4 mr-2 text-industrial-orange" /> Latest Customer Requests
+              </h2>
+            </div>
+            <EnquiriesTable enquiries={enquiries.slice(0, 5)} onStatusChange={handleStatusChange} />
+          </div>
+        </>
+      )}
+
+      {activeTab === 'enquiries' && (
+        <div className="bg-white rounded-lg border border-industrial-border shadow-subtle p-6">
+          <EnquiriesTable enquiries={enquiries} onStatusChange={handleStatusChange} />
+        </div>
+      )}
+    </div>
   );
 };
 

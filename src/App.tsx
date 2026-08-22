@@ -20,6 +20,7 @@ import { Contact } from './pages/Contact';
 import { AdminLogin } from './pages/AdminLogin';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { AdminCRUD } from './pages/AdminCRUD';
+import { AdminLayout } from './components/common/AdminLayout';
 import { NotFound } from './pages/NotFound';
 
 export const App: React.FC = () => {
@@ -27,10 +28,14 @@ export const App: React.FC = () => {
     <BrowserRouter>
       <ScrollToTop />
       <Routes>
-        {/* Admin Portal Routes (Top Priority) */}
+        {/* Admin Login Portal */}
         <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/admin/crud/:entity" element={<AdminCRUD />} />
+
+        {/* Protected Admin CMS Dashboard Layout */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="crud/:entity" element={<AdminCRUD />} />
+        </Route>
 
         {/* Public Website Shell */}
         <Route path="/" element={<Layout />}>

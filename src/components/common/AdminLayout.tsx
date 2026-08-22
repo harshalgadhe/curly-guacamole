@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { useNavigate, Link, useLocation, Outlet } from 'react-router-dom';
 import {
   Package,
   Briefcase,
@@ -14,17 +14,12 @@ import {
   Settings,
   Menu,
   X,
-  Award,
 } from 'lucide-react';
 import { subscribeAuth, logoutAdmin } from '../../services/auth.service';
 import { getEnquiries } from '../../services/enquiries.service';
 import { Enquiry } from '../../types';
 
-interface AdminLayoutProps {
-  children: React.ReactNode;
-}
-
-export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
+export const AdminLayout: React.FC = () => {
   const [authed, setAuthed] = useState<boolean | null>(null);
   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -106,7 +101,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         </button>
       </div>
 
-      {/* Sidebar - Persistent on desktop, drawer on mobile */}
+      {/* Sidebar - Persistent on desktop */}
       <aside className={`w-full md:w-64 bg-industrial-dark text-white p-6 shrink-0 flex flex-col justify-between z-30 transition-all duration-300 md:translate-x-0 ${mobileMenuOpen ? 'fixed inset-y-0 left-0 translate-x-0' : 'hidden md:flex'}`}>
         <div>
           <div className="flex items-center justify-between border-b border-industrial-slate pb-4 mb-6">
@@ -142,7 +137,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             {/* Enquiries Button with badge */}
             <Link
               to="/admin?tab=enquiries"
-              className={`flex items-center justify-between px-3 py-3 rounded transition-colors ${isTabActive('/admin?tab=enquiries') || (isTabActive('/admin') && currentPath === '/admin' && location.search.includes('enquiries')) ? 'bg-industrial-orange text-white' : 'text-gray-300 hover:bg-industrial-slate'}`}
+              className={`flex items-center justify-between px-3 py-3 rounded transition-colors ${location.search.includes('tab=enquiries') ? 'bg-industrial-orange text-white' : 'text-gray-300 hover:bg-industrial-slate'}`}
             >
               <div className="flex items-center space-x-2.5">
                 <Mail className="w-4 h-4 text-industrial-orange-light shrink-0" />
@@ -170,7 +165,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
       {/* Main Content Pane */}
       <main className="flex-1 p-4 sm:p-8 lg:p-10 overflow-y-auto">
-        {children}
+        <Outlet />
       </main>
 
     </div>
