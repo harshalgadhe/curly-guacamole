@@ -5,6 +5,7 @@ import { getProducts } from '../services/products.service';
 import { getCategories } from '../services/categories.service';
 import { getBrands } from '../services/brands.service';
 import { Product, Category, Brand } from '../types';
+import { ProductCardSkeleton } from '../components/common/Skeleton';
 
 export const Products: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -241,7 +242,7 @@ export const Products: React.FC = () => {
             {loading && (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <div key={i} className="h-80 bg-gray-100 rounded-lg animate-pulse"></div>
+                  <ProductCardSkeleton key={i} />
                 ))}
               </div>
             )}

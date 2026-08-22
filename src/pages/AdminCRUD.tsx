@@ -192,50 +192,6 @@ export const AdminCRUD: React.FC = () => {
           <form onSubmit={handleSaveSettings} className="space-y-6 text-xs max-w-3xl">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
-                <label className="block font-bold text-industrial-dark uppercase tracking-wider mb-1">Company Name</label>
-                <input
-                  type="text"
-                  required
-                  value={settingsItem.companyName || ''}
-                  onChange={(e) => setSettingsItem({ ...settingsItem, companyName: e.target.value })}
-                  className="w-full px-3 py-2 bg-white border border-industrial-border rounded focus:outline-none focus:border-industrial-orange"
-                />
-              </div>
-              <div>
-                <label className="block font-bold text-industrial-dark uppercase tracking-wider mb-1">Company Sub-Tagline</label>
-                <input
-                  type="text"
-                  value={settingsItem.tagline || ''}
-                  onChange={(e) => setSettingsItem({ ...settingsItem, tagline: e.target.value })}
-                  className="w-full px-3 py-2 bg-white border border-industrial-border rounded focus:outline-none focus:border-industrial-orange"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block font-bold text-industrial-dark uppercase tracking-wider mb-1">Company Logo Image</label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={settingsItem.logoUrl || ''}
-                  onChange={(e) => setSettingsItem({ ...settingsItem, logoUrl: e.target.value })}
-                  className="flex-1 px-3 py-2 bg-white border border-industrial-border rounded focus:outline-none focus:border-industrial-orange"
-                />
-                <label className="px-4 py-2 bg-industrial-dark text-white rounded font-bold cursor-pointer hover:bg-industrial-slate flex items-center transition-colors">
-                  <Upload className="w-3.5 h-3.5 mr-1" />
-                  <span>Upload Image</span>
-                  <input
-                    type="file"
-                    className="hidden"
-                    onChange={(e) => handleFileUpload(e, 'logoUrl', 'branding')}
-                  />
-                </label>
-              </div>
-              {uploading && <div className="text-[10px] text-industrial-orange mt-1">Uploading... {uploadProgress.toFixed(0)}%</div>}
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div>
                 <label className="block font-bold text-industrial-dark uppercase tracking-wider mb-1">Phone Number (Primary)</label>
                 <input
                   type="text"

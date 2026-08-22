@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ChevronRight, FileText, Download, ShieldCheck, ArrowRight, Package, Mail } from 'lucide-react';
 import { getProductBySlug, getProducts } from '../services/products.service';
 import { Product } from '../types';
+import { ProductDetailSkeleton } from '../components/common/Skeleton';
 
 export const ProductDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -31,8 +32,8 @@ export const ProductDetail: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-16 text-center text-industrial-muted animate-pulse">
-        Loading product specifications...
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <ProductDetailSkeleton />
       </div>
     );
   }

@@ -41,10 +41,10 @@ export const Footer: React.FC<FooterProps> = ({ settings }) => {
         {/* Column 1: Company Profile */}
         <div className="lg:col-span-2 space-y-4">
           <div className="flex items-center space-x-3">
-            <img src={settings.logoUrl || '/logo.jpg'} alt="Logo" className="h-12 w-auto bg-black p-0.5 rounded border border-industrial-steel" />
+            <img src="/logo.jpg" alt="Infinite Hardware" className="h-12 w-auto bg-black p-0.5 rounded border border-industrial-steel" />
             <div>
-              <div className="text-base font-black tracking-tight text-white">{settings.companyName}</div>
-              <div className="text-[10px] text-industrial-orange font-bold uppercase">{settings.tagline}</div>
+              <div className="text-base font-black tracking-tight text-white">Infinite Hardware Technology (P) Ltd.</div>
+              <div className="text-[10px] text-industrial-orange font-bold uppercase">Bridge Bearings • Expansion Joints • Couplings</div>
             </div>
           </div>
           <p className="text-xs text-gray-400 leading-relaxed max-w-sm">
