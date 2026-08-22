@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Trash2, Edit3, Save, Check, Upload, FileText, Image as ImageIcon } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Plus, Trash2, Edit3, Upload, FileText, Image as ImageIcon, CheckCircle, Save } from 'lucide-react';
+import { AdminLayout } from '../components/common/AdminLayout';
 import { getProducts, saveProduct, deleteProduct } from '../services/products.service';
 import { getCategories, saveCategory, deleteCategory } from '../services/categories.service';
 import { getBrands, saveBrand, deleteBrand } from '../services/brands.service';
 import { getProjects, saveProject, deleteProject } from '../services/projects.service';
 import { getDocuments, saveDocument, deleteDocument } from '../services/documents.service';
+import { getSiteSettings, updateSiteSettings } from '../services/settings.service';
 import { uploadFile } from '../services/storage.service';
-import { Product, Category, Brand, Project, DocumentItem } from '../types';
+import { Product, Category, Brand, Project, DocumentItem, SiteSettings } from '../types';
 
 export const AdminCRUD: React.FC = () => {
   const { entity } = useParams<{ entity: string }>();
@@ -15,9 +17,13 @@ export const AdminCRUD: React.FC = () => {
 
   const [items, setItems] = useState<any[]>([]);
   const [editingItem, setEditingItem] = useState<any | null>(null);
+  const [settingsItem, setSettingsItem] = useState<SiteSettings | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
   const [isNew, setIsNew] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
     loadEntityData();
@@ -25,16 +31,30 @@ export const AdminCRUD: React.FC = () => {
 
   const loadEntityData = async () => {
     setEditingItem(null);
-    if (entity === 'products') {
-      setItems(await getProducts(false));
-    } else if (entity === 'categories') {
-      setItems(await getCategories(false));
-    } else if (entity === 'brands') {
-      setItems(await getBrands(false));
-    } else if (entity === 'projects') {
-      setItems(await getProjects(false));
-    } else if (entity === 'documents') {
-      setItems(await getDocuments(false));
+    setSettingsItem(null);
+    setMessage('');
+
+    if (entity === 'settings') {
+      const settings = await getSiteSettings();
+      setSettingsItem(settings);
+    } else {
+      // Fetch references for category selection dropdowns
+      const catList = await getCategories(false);
+      const brandList = await getBrands(false);
+      setCategories(catList);
+      setBrands(brandList);
+
+      if (entity === 'products') {
+        setItems(await getProducts(false));
+      } else if (entity === 'categories') {
+        setItems(catList);
+      } else if (entity === 'brands') {
+        setItems(brandList);
+      } else if (entity === 'projects') {
+        setItems(await getProjects(false));
+      } else if (entity === 'documents') {
+        setItems(await getDocuments(false));
+      }
     }
   };
 
@@ -45,15 +65,30 @@ export const AdminCRUD: React.FC = () => {
   const handleCreateNew = () => {
     setIsNew(true);
     if (entity === 'products') {
-      setEditingItem({ name: '', slug: '', categoryName: 'Fasteners & Bolting Systems', shortDescription: '', description: '', featuredImage: '', specifications: [{ key: 'Material', value: 'High Tensile Steel' }], published: true, featured: false, sortOrder: 1 });
+      setEditingItem({
+        name: '',
+        slug: '',
+        categoryId: categories[0]?.id || '',
+        categoryName: categories[0]?.name || '',
+        brandId: brands[0]?.id || '',
+        brandName: brands[0]?.name || '',
+        shortDescription: '',
+        description: '',
+        featuredImage: '',
+        galleryImages: [],
+        specifications: [{ key: 'Material', value: 'High Tensile Steel' }],
+        published: true,
+        featured: false,
+        sortOrder: 1,
+      });
     } else if (entity === 'categories') {
       setEditingItem({ name: '', slug: '', description: '', image: '', published: true, sortOrder: 1 });
     } else if (entity === 'brands') {
       setEditingItem({ name: '', logo: '', description: '', published: true, sortOrder: 1 });
     } else if (entity === 'projects') {
-      setEditingItem({ title: '', slug: '', industry: 'Infrastructure', location: '', year: '2026', shortResult: '', challenge: '', solution: '', outcome: '', heroImage: '', published: true });
+      setEditingItem({ title: '', slug: '', industry: 'Bridges & Roads', location: '', year: new Date().getFullYear().toString(), shortResult: '', challenge: '', solution: '', outcome: '', heroImage: '', published: true });
     } else if (entity === 'documents') {
-      setEditingItem({ title: '', category: 'Technical Documents', fileUrl: '', fileType: 'PDF', size: '1.2 MB', published: true });
+      setEditingItem({ title: '', category: 'Catalogues', fileUrl: '', fileType: 'PDF', size: '1.0 MB', published: true });
     }
   };
 
@@ -62,7 +97,14 @@ export const AdminCRUD: React.FC = () => {
     if (!editingItem) return;
 
     if (entity === 'products') {
-      await saveProduct(editingItem);
+      const selectedCat = categories.find(c => c.id === editingItem.categoryId);
+      const selectedBnd = brands.find(b => b.id === editingItem.brandId);
+      const updatedItem = {
+        ...editingItem,
+        categoryName: selectedCat ? selectedCat.name : editingItem.categoryName,
+        brandName: selectedBnd ? selectedBnd.name : editingItem.brandName,
+      };
+      await saveProduct(updatedItem);
     } else if (entity === 'categories') {
       await saveCategory(editingItem);
     } else if (entity === 'brands') {
@@ -75,6 +117,14 @@ export const AdminCRUD: React.FC = () => {
 
     setEditingItem(null);
     loadEntityData();
+  };
+
+  const handleSaveSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!settingsItem) return;
+    await updateSiteSettings(settingsItem);
+    setMessage('Site Settings updated successfully!');
+    setTimeout(() => setMessage(''), 3000);
   };
 
   const handleDelete = async (id: string, name: string) => {
@@ -93,7 +143,12 @@ export const AdminCRUD: React.FC = () => {
     try {
       setUploading(true);
       const url = await uploadFile(file, folder, (progress) => setUploadProgress(progress));
-      setEditingItem((prev: any) => ({ ...prev, [field]: url }));
+      
+      if (entity === 'settings') {
+        setSettingsItem((prev: any) => ({ ...prev, [field]: url }));
+      } else {
+        setEditingItem((prev: any) => ({ ...prev, [field]: url }));
+      }
       setUploading(false);
     } catch (err: any) {
       alert(err.message || 'File upload failed');
@@ -102,40 +157,235 @@ export const AdminCRUD: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-industrial-light p-6 sm:p-10 font-sans">
-      <div className="max-w-6xl mx-auto space-y-6">
+    <AdminLayout>
+      <div className="space-y-6">
         
         {/* Header */}
-        <div className="flex items-center justify-between bg-white p-6 rounded-lg border border-industrial-border shadow-subtle">
-          <div className="flex items-center space-x-4">
-            <Link to="/admin" className="p-2 rounded hover:bg-gray-100 text-industrial-dark">
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
-            <div>
-              <h1 className="text-xl font-bold uppercase tracking-tight text-industrial-dark">Manage {entity}</h1>
-              <p className="text-xs text-industrial-muted">Create, edit, or delete items in this Firestore collection</p>
-            </div>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-lg border border-industrial-border shadow-subtle">
+          <div>
+            <h1 className="text-xl font-bold uppercase tracking-tight text-industrial-dark">
+              {entity === 'settings' ? 'Configure Website Settings' : `Manage ${entity}`}
+            </h1>
+            <p className="text-xs text-industrial-muted mt-0.5">
+              {entity === 'settings'
+                ? 'Update contact details, office address, branding logo, and page footer options'
+                : `Create, edit, or delete listings in the ${entity} directory`}
+            </p>
           </div>
 
-          <button
-            onClick={handleCreateNew}
-            className="px-4 py-2 bg-industrial-orange hover:bg-industrial-orange-hover text-white text-xs font-bold rounded flex items-center space-x-1"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Add New {entity?.slice(0, -1)}</span>
-          </button>
+          {entity !== 'settings' && !editingItem && (
+            <button
+              onClick={handleCreateNew}
+              className="px-4 py-2.5 bg-industrial-orange hover:bg-industrial-orange-hover text-white text-xs font-bold rounded flex items-center space-x-1.5 self-start sm:self-auto transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add New Item</span>
+            </button>
+          )}
         </div>
 
+        {message && (
+          <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-900 rounded text-xs font-semibold flex items-center">
+            <CheckCircle className="w-4 h-4 mr-2 text-emerald-600" /> {message}
+          </div>
+        )}
+
+        {/* Site Settings Editing form */}
+        {entity === 'settings' && settingsItem && (
+          <div className="bg-white p-6 rounded-lg border border-industrial-border shadow-subtle">
+            <form onSubmit={handleSaveSettings} className="space-y-6 text-xs max-w-3xl">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <label className="block font-bold text-industrial-dark uppercase tracking-wider mb-1">Company Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={settingsItem.companyName || ''}
+                    onChange={(e) => setSettingsItem({ ...settingsItem, companyName: e.target.value })}
+                    className="w-full px-3 py-2 bg-white border border-industrial-border rounded focus:outline-none focus:border-industrial-orange"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-industrial-dark uppercase tracking-wider mb-1">Company Sub-Tagline</label>
+                  <input
+                    type="text"
+                    value={settingsItem.tagline || ''}
+                    onChange={(e) => setSettingsItem({ ...settingsItem, tagline: e.target.value })}
+                    className="w-full px-3 py-2 bg-white border border-industrial-border rounded focus:outline-none focus:border-industrial-orange"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-bold text-industrial-dark uppercase tracking-wider mb-1">Company Logo Image</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={settingsItem.logoUrl || ''}
+                    onChange={(e) => setSettingsItem({ ...settingsItem, logoUrl: e.target.value })}
+                    className="flex-1 px-3 py-2 bg-white border border-industrial-border rounded focus:outline-none focus:border-industrial-orange"
+                  />
+                  <label className="px-4 py-2 bg-industrial-dark text-white rounded font-bold cursor-pointer hover:bg-industrial-slate flex items-center transition-colors">
+                    <Upload className="w-3.5 h-3.5 mr-1" />
+                    <span>Upload Image</span>
+                    <input
+                      type="file"
+                      className="hidden"
+                      onChange={(e) => handleFileUpload(e, 'logoUrl', 'branding')}
+                    />
+                  </label>
+                </div>
+                {uploading && <div className="text-[10px] text-industrial-orange mt-1">Uploading... {uploadProgress.toFixed(0)}%</div>}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <label className="block font-bold text-industrial-dark uppercase tracking-wider mb-1">Phone Number (Primary)</label>
+                  <input
+                    type="text"
+                    required
+                    value={settingsItem.phone || ''}
+                    onChange={(e) => setSettingsItem({ ...settingsItem, phone: e.target.value })}
+                    className="w-full px-3 py-2 bg-white border border-industrial-border rounded focus:outline-none focus:border-industrial-orange"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-industrial-dark uppercase tracking-wider mb-1">Phone Number (Secondary)</label>
+                  <input
+                    type="text"
+                    value={settingsItem.altPhone || ''}
+                    onChange={(e) => setSettingsItem({ ...settingsItem, altPhone: e.target.value })}
+                    className="w-full px-3 py-2 bg-white border border-industrial-border rounded focus:outline-none focus:border-industrial-orange"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-industrial-dark uppercase tracking-wider mb-1">Sales Inquiry Email</label>
+                  <input
+                    type="email"
+                    required
+                    value={settingsItem.email || ''}
+                    onChange={(e) => setSettingsItem({ ...settingsItem, email: e.target.value })}
+                    className="w-full px-3 py-2 bg-white border border-industrial-border rounded focus:outline-none focus:border-industrial-orange"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-industrial-dark uppercase tracking-wider mb-1">WhatsApp Number (with country code)</label>
+                  <input
+                    type="text"
+                    value={settingsItem.whatsapp || ''}
+                    onChange={(e) => setSettingsItem({ ...settingsItem, whatsapp: e.target.value })}
+                    className="w-full px-3 py-2 bg-white border border-industrial-border rounded focus:outline-none focus:border-industrial-orange"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-bold text-industrial-dark uppercase tracking-wider mb-1">Office / Warehouse Address</label>
+                <textarea
+                  rows={2}
+                  required
+                  value={settingsItem.address || ''}
+                  onChange={(e) => setSettingsItem({ ...settingsItem, address: e.target.value })}
+                  className="w-full px-3 py-2 bg-white border border-industrial-border rounded focus:outline-none focus:border-industrial-orange"
+                ></textarea>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <label className="block font-bold text-industrial-dark uppercase tracking-wider mb-1">Business Operating Hours</label>
+                  <input
+                    type="text"
+                    value={settingsItem.businessHours || ''}
+                    onChange={(e) => setSettingsItem({ ...settingsItem, businessHours: e.target.value })}
+                    className="w-full px-3 py-2 bg-white border border-industrial-border rounded focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-industrial-dark uppercase tracking-wider mb-1">Google Maps link</label>
+                  <input
+                    type="text"
+                    value={settingsItem.googleMapsUrl || ''}
+                    onChange={(e) => setSettingsItem({ ...settingsItem, googleMapsUrl: e.target.value })}
+                    className="w-full px-3 py-2 bg-white border border-industrial-border rounded focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-bold text-industrial-dark uppercase tracking-wider mb-1">Footer Brief Summary</label>
+                <textarea
+                  rows={3}
+                  value={settingsItem.footerDescription || ''}
+                  onChange={(e) => setSettingsItem({ ...settingsItem, footerDescription: e.target.value })}
+                  className="w-full px-3 py-2 bg-white border border-industrial-border rounded focus:outline-none"
+                ></textarea>
+              </div>
+
+              <div>
+                <label className="block font-bold text-industrial-dark uppercase tracking-wider mb-1">Copyright Line</label>
+                <input
+                  type="text"
+                  value={settingsItem.copyrightText || ''}
+                  onChange={(e) => setSettingsItem({ ...settingsItem, copyrightText: e.target.value })}
+                  className="w-full px-3 py-2 bg-white border border-industrial-border rounded focus:outline-none"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="px-6 py-2.5 bg-industrial-orange hover:bg-industrial-orange-hover text-white font-bold rounded flex items-center space-x-2 transition-colors uppercase tracking-wider"
+              >
+                <Save className="w-4 h-4" /> <span>Save Site Settings</span>
+              </button>
+            </form>
+          </div>
+        )}
+
         {/* Edit / Create Form Modal */}
-        {editingItem && (
+        {entity !== 'settings' && editingItem && (
           <div className="bg-white p-6 rounded-lg border border-industrial-orange shadow-elevated">
             <h2 className="text-base font-bold text-industrial-dark mb-4 border-b border-industrial-border pb-2">
-              {isNew ? 'Create New Record' : 'Edit Record'}
+              {isNew ? 'Create New Entry' : 'Edit Selected Entry'}
             </h2>
 
             <form onSubmit={handleSave} className="space-y-4 text-xs">
+              
+              {/* Product Category dropdown */}
+              {entity === 'products' && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block font-bold text-industrial-dark uppercase tracking-wider mb-1">Product Category</label>
+                    <select
+                      value={editingItem.categoryId}
+                      onChange={(e) => setEditingItem({ ...editingItem, categoryId: e.target.value })}
+                      className="w-full px-3 py-2 bg-white border border-industrial-border rounded focus:outline-none"
+                    >
+                      {categories.map(c => (
+                        <option key={c.id} value={c.id}>{c.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block font-bold text-industrial-dark uppercase tracking-wider mb-1">Manufacturer / Brand</label>
+                    <select
+                      value={editingItem.brandId}
+                      onChange={(e) => setEditingItem({ ...editingItem, brandId: e.target.value })}
+                      className="w-full px-3 py-2 bg-white border border-industrial-border rounded focus:outline-none"
+                    >
+                      <option value="">No Brand (Generic / Infinite Hardware)</option>
+                      {brands.map(b => (
+                        <option key={b.id} value={b.id}>{b.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              )}
+
+              {/* Title / Name */}
               <div>
-                <label className="block font-bold text-industrial-dark uppercase tracking-wider mb-1">Title / Name *</label>
+                <label className="block font-bold text-industrial-dark uppercase tracking-wider mb-1">
+                  {entity === 'products' ? 'Product Name *' : entity === 'projects' ? 'Project Title *' : 'Name / Title *'}
+                </label>
                 <input
                   type="text"
                   required
@@ -145,58 +395,96 @@ export const AdminCRUD: React.FC = () => {
                     const slug = handleSlugGen(val);
                     setEditingItem({ ...editingItem, name: val, title: val, slug });
                   }}
-                  className="w-full px-3 py-2 border border-industrial-border rounded focus:outline-none"
+                  className="w-full px-3 py-2 bg-white border border-industrial-border rounded focus:outline-none focus:border-industrial-orange"
                 />
               </div>
 
+              {/* Web URL Link */}
               {editingItem.slug !== undefined && (
                 <div>
-                  <label className="block font-bold text-industrial-dark uppercase tracking-wider mb-1">URL Slug</label>
+                  <label className="block font-bold text-industrial-dark uppercase tracking-wider mb-1">
+                    Web Link URL Address <span className="text-[10px] text-gray-500 font-normal lowercase">(Automatically generated from title, e.g. "heavy-duty-joint")</span>
+                  </label>
                   <input
                     type="text"
                     value={editingItem.slug}
                     onChange={(e) => setEditingItem({ ...editingItem, slug: e.target.value })}
-                    className="w-full px-3 py-2 border border-industrial-border rounded focus:outline-none font-mono"
+                    className="w-full px-3 py-2 bg-white border border-industrial-border rounded focus:outline-none font-mono"
                   />
                 </div>
               )}
 
               {/* Upload Image / Document */}
               <div>
-                <label className="block font-bold text-industrial-dark uppercase tracking-wider mb-1">Image / File URL</label>
+                <label className="block font-bold text-industrial-dark uppercase tracking-wider mb-1">
+                  {entity === 'documents' ? 'Upload PDF Document *' : 'Image URL'}
+                </label>
                 <div className="flex gap-2">
                   <input
                     type="text"
                     value={editingItem.featuredImage || editingItem.image || editingItem.heroImage || editingItem.fileUrl || ''}
-                    onChange={(e) => setEditingItem({ ...editingItem, featuredImage: e.target.value, image: e.target.value, heroImage: e.target.value, fileUrl: e.target.value })}
-                    className="flex-1 px-3 py-2 border border-industrial-border rounded focus:outline-none"
+                    onChange={(e) => setEditingItem({
+                      ...editingItem,
+                      featuredImage: e.target.value,
+                      image: e.target.value,
+                      heroImage: e.target.value,
+                      fileUrl: e.target.value
+                    })}
+                    className="flex-1 px-3 py-2 bg-white border border-industrial-border rounded focus:outline-none focus:border-industrial-orange"
                   />
-                  <label className="px-3 py-2 bg-industrial-dark text-white rounded font-bold cursor-pointer hover:bg-industrial-slate flex items-center">
+                  <label className="px-4 py-2 bg-industrial-dark text-white rounded font-bold cursor-pointer hover:bg-industrial-slate flex items-center transition-colors">
                     <Upload className="w-3.5 h-3.5 mr-1" />
-                    <span>Upload File</span>
+                    <span>Upload file</span>
                     <input
                       type="file"
                       className="hidden"
-                      onChange={(e) => handleFileUpload(e, entity === 'documents' ? 'fileUrl' : 'featuredImage', entity as any)}
+                      onChange={(e) => handleFileUpload(
+                        e,
+                        entity === 'documents' ? 'fileUrl' : entity === 'projects' ? 'heroImage' : entity === 'categories' ? 'image' : 'featuredImage',
+                        entity as any
+                      )}
                     />
                   </label>
                 </div>
-                {uploading && <div className="text-[11px] text-industrial-orange mt-1">Uploading... {uploadProgress.toFixed(0)}%</div>}
+                {uploading && <div className="text-[10px] text-industrial-orange mt-1">Uploading... {uploadProgress.toFixed(0)}%</div>}
               </div>
 
+              {/* Short description */}
               {editingItem.shortDescription !== undefined && (
                 <div>
-                  <label className="block font-bold text-industrial-dark uppercase tracking-wider mb-1">Short Description</label>
+                  <label className="block font-bold text-industrial-dark uppercase tracking-wider mb-1">
+                    Brief Summary <span className="text-[10px] text-gray-500 font-normal lowercase">(1-2 sentences for catalog view)</span>
+                  </label>
                   <textarea
                     rows={2}
                     value={editingItem.shortDescription}
                     onChange={(e) => setEditingItem({ ...editingItem, shortDescription: e.target.value })}
-                    className="w-full px-3 py-2 border border-industrial-border rounded focus:outline-none"
+                    className="w-full px-3 py-2 bg-white border border-industrial-border rounded focus:outline-none"
                   ></textarea>
                 </div>
               )}
 
-              <div className="flex items-center space-x-6 pt-2">
+              {/* Long description */}
+              {(editingItem.description !== undefined || editingItem.fullContent !== undefined) && (
+                <div>
+                  <label className="block font-bold text-industrial-dark uppercase tracking-wider mb-1">
+                    Detailed Description / Main Text
+                  </label>
+                  <textarea
+                    rows={6}
+                    value={editingItem.description !== undefined ? editingItem.description : editingItem.fullContent}
+                    onChange={(e) => setEditingItem(
+                      editingItem.description !== undefined
+                        ? { ...editingItem, description: e.target.value }
+                        : { ...editingItem, fullContent: e.target.value }
+                    )}
+                    className="w-full px-3 py-2 bg-white border border-industrial-border rounded focus:outline-none"
+                  ></textarea>
+                </div>
+              )}
+
+              {/* Display & Publication Status */}
+              <div className="flex flex-wrap items-center gap-6 pt-2 border-t border-gray-100">
                 <label className="flex items-center space-x-2 cursor-pointer font-bold text-industrial-dark">
                   <input
                     type="checkbox"
@@ -204,15 +492,44 @@ export const AdminCRUD: React.FC = () => {
                     onChange={(e) => setEditingItem({ ...editingItem, published: e.target.checked })}
                     className="rounded text-industrial-orange"
                   />
-                  <span>Published on Public Website</span>
+                  <span>Show / Visible on Public Website</span>
                 </label>
+
+                {editingItem.featured !== undefined && (
+                  <label className="flex items-center space-x-2 cursor-pointer font-bold text-industrial-dark">
+                    <input
+                      type="checkbox"
+                      checked={editingItem.featured}
+                      onChange={(e) => setEditingItem({ ...editingItem, featured: e.target.checked })}
+                      className="rounded text-industrial-orange"
+                    />
+                    <span>Highlight in "Featured Section" on Home Page</span>
+                  </label>
+                )}
+
+                {editingItem.sortOrder !== undefined && (
+                  <div className="flex items-center space-x-2">
+                    <span className="font-bold text-industrial-dark">Display Priority:</span>
+                    <input
+                      type="number"
+                      value={editingItem.sortOrder}
+                      onChange={(e) => setEditingItem({ ...editingItem, sortOrder: parseInt(e.target.value) || 1 })}
+                      className="w-16 px-2 py-1 bg-white border border-industrial-border rounded text-center"
+                    />
+                    <span className="text-[10px] text-gray-500 font-normal">(higher numbers appear first)</span>
+                  </div>
+                )}
               </div>
 
               <div className="flex space-x-2 pt-4 border-t border-industrial-border">
-                <button type="submit" className="px-5 py-2 bg-industrial-orange text-white font-bold rounded hover:bg-industrial-orange-hover">
-                  Save Changes
+                <button type="submit" className="px-5 py-2.5 bg-industrial-orange hover:bg-industrial-orange-hover text-white font-bold rounded flex items-center space-x-1 transition-colors uppercase tracking-wider">
+                  <span>Save Changes</span>
                 </button>
-                <button type="button" onClick={() => setEditingItem(null)} className="px-4 py-2 bg-gray-200 text-industrial-dark font-bold rounded">
+                <button
+                  type="button"
+                  onClick={() => setEditingItem(null)}
+                  className="px-4 py-2.5 bg-gray-200 text-industrial-dark font-bold rounded transition-colors uppercase tracking-wider"
+                >
                   Cancel
                 </button>
               </div>
@@ -221,49 +538,68 @@ export const AdminCRUD: React.FC = () => {
         )}
 
         {/* Existing Items Table */}
-        <div className="bg-white rounded-lg border border-industrial-border shadow-subtle p-6">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-industrial-light text-industrial-dark uppercase font-bold border-b border-industrial-border">
-                <tr>
-                  <th className="p-3">Title / Name</th>
-                  <th className="p-3">Slug</th>
-                  <th className="p-3">Status</th>
-                  <th className="p-3 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-industrial-border">
-                {items.map((item) => (
-                  <tr key={item.id} className="hover:bg-gray-50">
-                    <td className="p-3 font-bold text-industrial-dark">{item.name || item.title}</td>
-                    <td className="p-3 font-mono text-gray-500">{item.slug || item.id}</td>
-                    <td className="p-3">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${item.published ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-800'}`}>
-                        {item.published ? 'Published' : 'Draft'}
-                      </span>
-                    </td>
-                    <td className="p-3 text-right space-x-2">
-                      <button
-                        onClick={() => { setIsNew(false); setEditingItem(item); }}
-                        className="p-1.5 text-industrial-dark hover:text-industrial-orange"
-                      >
-                        <Edit3 className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(item.id, item.name || item.title)}
-                        className="p-1.5 text-red-600 hover:text-red-800"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </td>
+        {entity !== 'settings' && !editingItem && (
+          <div className="bg-white rounded-lg border border-industrial-border shadow-subtle p-6">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead className="bg-industrial-light text-industrial-dark uppercase font-bold text-[10px] tracking-wider border-b border-industrial-border">
+                  <tr>
+                    <th className="p-3">Title / Name</th>
+                    {entity !== 'documents' && <th className="p-3">Web Link URL</th>}
+                    <th className="p-3">Status</th>
+                    <th className="p-3 text-right">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-industrial-border">
+                  {items.map((item) => (
+                    <tr key={item.id} className="hover:bg-gray-50/50">
+                      <td className="p-3 font-semibold text-industrial-dark">{item.name || item.title}</td>
+                      {entity !== 'documents' && (
+                        <td className="p-3 font-mono text-gray-500 text-[10px]">/{item.slug || item.id}</td>
+                      )}
+                      <td className="p-3">
+                        <span
+                          className={`inline-flex px-2 py-0.5 rounded-full text-[9px] font-bold ${
+                            item.published
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : 'bg-gray-100 text-gray-800'
+                          }`}
+                        >
+                          {item.published ? 'Visible' : 'Hidden / Draft'}
+                        </span>
+                      </td>
+                      <td className="p-3 text-right space-x-1 whitespace-nowrap">
+                        <button
+                          onClick={() => { setIsNew(false); setEditingItem(item); }}
+                          className="p-1.5 bg-industrial-light text-industrial-dark hover:bg-industrial-orange hover:text-white rounded transition-colors inline-flex items-center"
+                          title="Edit Entry"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(item.id, item.name || item.title)}
+                          className="p-1.5 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white rounded transition-colors inline-flex items-center"
+                          title="Delete Entry"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                  {items.length === 0 && (
+                    <tr>
+                      <td colSpan={4} className="text-center py-8 text-industrial-muted">
+                        No entries found. Click "Add New Item" to create one.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+        )}
 
       </div>
-    </div>
+    </AdminLayout>
   );
 };
